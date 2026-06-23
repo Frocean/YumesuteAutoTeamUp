@@ -23,7 +23,10 @@ async def main():
         accessory_data = json.load(f)
     accessory_list = {item["CharacterBaseMasterId"]: item for item in accessory_data}
 
-    sync_queue, (accessory_task, saver_task) = start_pipeline(
+    async_queue = asyncio.Queue(maxsize=10)
+
+    accessory_task, saver_task = start_pipeline(
+        async_queue=async_queue,
         accessory_user=accessory_user,
         accessory_list=accessory_list,
         api_url="http://127.0.0.1:3456/calc",
@@ -41,7 +44,7 @@ async def main():
         automatic_formation,
         userdata_path, character_master_path, poster_ability_path, effect_master_path,
         tuple(args.mandatory_characters), tuple(args.mandatory_posters),
-        sync_queue
+        async_queue, loop
     )
 
     await accessory_task

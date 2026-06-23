@@ -42,7 +42,7 @@ async def _send_one_request(session, formation: dict, api_url: str, data_file: s
 
 
 async def _accessory_and_request_loop(
-    sync_queue: queue.Queue,
+    async_queue: asyncio.Queue,
     result_queue: asyncio.Queue,
     accessory_user: list,
     accessory_list: dict,
@@ -71,9 +71,9 @@ async def _accessory_and_request_loop(
 
     async with aiohttp.ClientSession() as session:
         while True:  # get actor formations
-            s_q = await loop.run_in_executor(None, sync_queue.get)
+            s_q = await async_queue.get()
             if s_q is None:  # EOT
-                sync_queue.task_done()
+                async_queue.task_done()
                 break
 
             base_state = s_q["Result"]
@@ -90,7 +90,7 @@ async def _accessory_and_request_loop(
                 res = await coro
                 await result_queue.put(res)
 
-            sync_queue.task_done()
+            async_queue.task_done()
 
     await result_queue.put(None)
 
@@ -110,6 +110,7 @@ async def _result_saver_loop(result_queue: asyncio.Queue, save_func):
 
 
 def start_pipeline(
+    async_queue: asyncio.Queue,
     accessory_user: list,
     accessory_list: dict,
     api_url: str = "http://127.0.0.1:3456/calc",
@@ -131,4 +132,4 @@ def start_pipeline(
     )
     saver_task = asyncio.create_task(_result_saver_loop(result_queue, save_func))
 
-    return sync_queue, (accessory_task, saver_task)
+    return accessory_task, saver_task

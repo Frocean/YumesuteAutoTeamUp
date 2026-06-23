@@ -5,6 +5,7 @@ Output: N-Top results among all status.
 """
 import json
 import os
+import asyncio
 
 import time
 
@@ -292,6 +293,7 @@ def automatic_formation(
         mandatory_characters=(150010, 0, 150020, 0, 150030, 0, 150040, 0, 0, 0),
         mandatory_posters=(330380, 150030, 230120, 150040, 0, 0, 0, 0, 0, 0),
         pipeline_queue=None,
+        loop=None,
         userdata=None
 ):
     # start_time = time.time()
@@ -341,12 +343,15 @@ def automatic_formation(
         # print(charb_id)
         result = checker.processor_poster(r, poster_solutions)
         if pipeline_queue is not None:
-            pipeline_queue.put({"Result": result, "CharacterBaseMasterId": charb_id})
+            asyncio.run_coroutine_threadsafe(
+                pipeline_queue.put({"Result": result, "CharacterBaseMasterId": charb_id}),
+                loop
+            )
         #     put_count += 1
         #     if put_count % 100 == 0:
         #         print(f"put {put_count} items into queue, queue size {pipeline_queue.qsize()}")
     if pipeline_queue is not None:
-        pipeline_queue.put(None)
+        asyncio.run_coroutine_threadsafe(pipeline_queue.put(None), loop)
 
 
 if __name__ == "__main__":

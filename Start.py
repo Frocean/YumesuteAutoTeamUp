@@ -1,10 +1,9 @@
 """
-python Start.py < test.json
+python Start.py < Yumetest.json
 """
 import os
 import asyncio
 import json
-import queue
 import sys
 
 from src.ActorFormation import automatic_formation
@@ -41,20 +40,20 @@ async def stdout_writer(que: asyncio.Queue):
         if team is None:
             print(json.dumps({"FIN": True}), flush=True)
             break
-        print(json.dumps(team, ensure_ascii=False), flush=True)
+        # print(json.dumps(team, ensure_ascii=False), flush=True)
 
 
 async def state_expander(
-        sync_queue: queue.Queue,
+        async_queue: asyncio.Queue,
         out_queue: asyncio.Queue,
         accessory_user: list,
         accessory_list: dict
 ):
     loop = asyncio.get_running_loop()
     while True:  # get actor formations
-        s_q = await loop.run_in_executor(None, sync_queue.get)
+        s_q = await async_queue.get()
         if s_q is None:  # EOT
-            sync_queue.task_done()
+            async_queue.task_done()
             break
 
         base_state = s_q["Result"]
@@ -67,7 +66,7 @@ async def state_expander(
 
         for team in expanded_teams:
             await out_queue.put(team)
-        sync_queue.task_done()
+        async_queue.task_done()
     await out_queue.put(None)
 
 
@@ -109,13 +108,13 @@ async def main():
         accessory_data = json.load(f)
     accessory_list = {item["CharacterBaseMasterId"]: item for item in accessory_data}
 
-    sync_queue = queue.Queue(maxsize=10)
+    async_queue = asyncio.Queue(maxsize=10)
     out_queue = asyncio.Queue(maxsize=1023)
 
     fin_event = asyncio.Event()
     reader_task = asyncio.create_task(stdin_reader(fin_event))
     writer_task = asyncio.create_task(stdout_writer(out_queue))
-    expander_task = asyncio.create_task(state_expander(sync_queue, out_queue, accessory_user, accessory_list))
+    expander_task = asyncio.create_task(state_expander(async_queue, out_queue, accessory_user, accessory_list))
 
     loop = asyncio.get_running_loop()
     await loop.run_in_executor(  # ActorFormation.py
@@ -123,7 +122,7 @@ async def main():
         automatic_formation,
         None, character_master_path, poster_ability_path, effect_master_path,
         tuple(args.mandatory_characters), tuple(args.mandatory_posters),
-        sync_queue, user_data
+        async_queue, loop, user_data
     )
 
     await expander_task
