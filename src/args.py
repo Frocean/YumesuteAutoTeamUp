@@ -13,7 +13,7 @@ def parse_args():
     #                     default=[150010, 0, 150020, 0, 150030, 0, 150040, 0, 0, 0],
     #                     help='交替输入必选角色及其固定位置, 不选则填0, 以空格分割')
     # parser.add_argument('-mp', '--mandatory_posters', type=int, nargs=10,
-    #                     default=[330380, 150030, 230120, 150040, 0, 0, 0, 0, 0, 0],
+    #                     default=[330250, 150030, 230120, 150040, 0, 0, 0, 0, 0, 0],
     #                     help='交替输入必选海报及其绑定角色, 不选则填0, 以空格分割')
     parser.add_argument('-ml', '--mandatory_leader', type=int, default=0, help='固定队长位置, 不选则填0')
     parser.add_argument('-u', '--update', type=str, default='https://github.com/esterTion/yumesute_master_db_diff')

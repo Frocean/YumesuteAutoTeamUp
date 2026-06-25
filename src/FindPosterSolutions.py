@@ -85,6 +85,17 @@ class PosterFilter:
             5: [2, 3]  # 発動条件：Eden・銀河座に所属するアクターが装備
         }
 
+    @staticmethod
+    def _merge_effects(effects):
+        merged = {}
+        for eff in effects:
+            key = (eff.get("Type"), eff.get("FireTimingType"))
+            if key not in merged:
+                merged[key] = eff.copy()  # 保留第一条的结构
+            else:
+                merged[key]["Value"] += eff["Value"]
+        return list(merged.values())
+
     def apply(self, data, poster, character, effect):  # process raw data
         # print(data)
         data = self.filter_level(data, poster[1])
@@ -100,6 +111,7 @@ class PosterFilter:
                 boolean = False
             if boolean:
                 data_bot.append(self.filter_final(effect_data, poster[1] + poster[2]))
+        data_bot = self._merge_effects(data_bot)
         return {"Id": poster[0], "Effects": data_bot}
 
     # Filter unnecessary effects for posters.
@@ -128,7 +140,8 @@ class PosterFilter:
     Filter useless elements for posters. Options:
     "Id", "Type", "Range", "CalculationType", "Details", "Conditions", "DurationSecond", "Triggers", "FireTimingType"
     """
-    def filter_final(self, data, level):
+    @staticmethod
+    def filter_final(data, level):
         # included_effect_default = {"Id"}
         included_final = {}
         detail_list = data.get("Details", [])
@@ -142,10 +155,12 @@ class PosterFilter:
         # print(included_final)
         return included_final
 
-    def filter_leader(self, data):
+    @staticmethod
+    def filter_leader(data):
         return [t for t in data if t.get("Type") != "Leader"]
 
-    def filter_level(self, data, level):
+    @staticmethod
+    def filter_level(data, level):
         return [ab for ab in data if ab.get("ReleaseLevelAt", 0) <= level]
 
     """
@@ -154,7 +169,7 @@ class PosterFilter:
     """
     def filter_triggers(self, data, character):
         # print(character)
-        trig_chekcer = {"Attribute", "CharacterBase", "Company", "CharacterBaseGroup"}
+        trig_checker = {"Attribute", "CharacterBase", "Company", "CharacterBaseGroup"}
         triggers = data.get("Triggers", [])
         # print(triggers)
         for trigger in triggers:
@@ -194,7 +209,8 @@ class PosterFilter:
                 print(f"unknown trigger in poster with string {t}")
         return False
 
-    def get_effect_id(self, data):
+    @staticmethod
+    def get_effect_id(data):
         branches = data.get("Branches", [])
         branch = next((b for b in branches if b.get("Order") == 1), None)
         if not branch:
@@ -232,7 +248,8 @@ class PosterSolution:
         self.supreme_arr = set()
         self.supreme_dic = set()
 
-    def _effects_to_dict(self, effects):
+    @staticmethod
+    def _effects_to_dict(effects):
         return {(e["Type"], e["FireTimingType"]): e["Value"] for e in effects}
 
     def check_if_dominate(self, data1, data2):
@@ -243,19 +260,35 @@ class PosterSolution:
                 return False
         return True
 
-    def check_if_spj(self, effect1, effect2):
-        judge1 = 0
-        judge2 = 0
+    @staticmethod
+    def check_if_spj(effect1, effect2):
+        spj_1 = [0] * 3
+        spj_2 = [0] * 3
+
         for e in effect1:
-            if e.get("Type") == "SenseRecastDown":
-                judge1 = e.get("Value", 0)
-                break
+            effect_type = e.get("Type")
+            if effect_type == "SenseRecastDown":
+                spj_1[0] = e.get("Value", 0)
+            if effect_type == "AddSenseLightVariable":
+                if e.get("FireTimingType") == "Passive":
+                    spj_1[1] = e.get("Value", 0)
+                else:
+                    spj_1[2] = e.get("Value", 0)
+
         for e in effect2:
-            if e.get("Type") == "SenseRecastDown":
-                judge2 = e.get("Value", 0)
-                break
-        if judge1 and judge2:
-            return judge1 != judge2
+            effect_type = e.get("Type")
+            if effect_type == "SenseRecastDown":
+                spj_2[0] = e.get("Value", 0)
+            if effect_type == "AddSenseLightVariable":
+                if e.get("FireTimingType") == "Passive":
+                    spj_2[1] = e.get("Value", 0)
+                else:
+                    spj_2[2] = e.get("Value", 0)
+
+        for i in range(3):
+            if spj_1[i] and spj_2[i]:
+                if spj_1[i] != spj_2[i]:
+                    return True
         return False
 
     def push(self, data):

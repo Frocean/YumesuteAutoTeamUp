@@ -296,7 +296,7 @@ def automatic_formation(
         loop=None,
         userdata=None
 ):
-    # start_time = time.time()
+    start_time = time.time()
 
     if userdata is not None:
         user_data = userdata
@@ -310,8 +310,8 @@ def automatic_formation(
         characters_data = json.load(f)
     characters_id_master = {item["Id"]: item for item in characters_data}
 
-    # current_time = time.time() - start_time
-    # print(f"check data in {current_time}s")
+    current_time = time.time() - start_time
+    print(f"check data in {current_time}s")
 
     c_cache = {}
     checker = CheckUnrepeated()
@@ -339,7 +339,7 @@ def automatic_formation(
         checker.urp_filter_p(r, mandatory_posters)
         charb_id = [None] * 5
         for n, c in enumerate(r):
-            charb_id[n-1] = c_cache[c].get("CharacterBaseMasterId", [])
+            charb_id[n] = c_cache[c].get("CharacterBaseMasterId", [])
         # print(charb_id)
         result = checker.processor_poster(r, poster_solutions)
         if pipeline_queue is not None:

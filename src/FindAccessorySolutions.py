@@ -8,13 +8,21 @@ Output: status of characters, posters, and accessories.
 def processor_accessory(base_state, busy_chara, accessory_user, accessory_list):
     """
     Generate final status through accessory data.
-    Input: base status of characters and posters list[10], busy character for matching status list[idk],
+    Input: base status of characters and posters tuple[10], busy character for matching status list[idk],
            user's accessory data, preprocessed accessory list
-    Output: all final status list[n][15]
+    Output: all final status tuple[n][15]
     Reminder: If there's new essential accessory appended, plz reach out to me in a timely manner.
               [other solution]: Modify accessory_processed.json and add corresponding ID into "AccessoryId"
     注意事项: 如果出现了类似蝴蝶结的通用上位饰品, 请及时通过 qq 联系本人, 也可以或自行在 accessory_processed.json 中添加对应饰品 ID.
     """
+    # ---------- status for check ----------
+    # if base_state and base_state[0][:5] == (150010, 150040, 150020, 150030, 142290):
+    #     print("Characters' status: base_state with characters (150010, 150040, 150020, 150030, 142290)")
+    #     for base in base_state:
+    #         print(base)
+    # else:
+    #     return []
+    # ---------------------------------
     a_status = set()
     a_busy = set()
     a_user = {al[0] for al in accessory_user}
