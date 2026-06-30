@@ -1,9 +1,7 @@
 # YumesuteAutoTeamUp
 Auto team-up script for Yumesute
 
-ymst自动配队器
-
-目前仍在绝赞开发中, 但是其他部分的时间开销还是太大了而且没优化, 适配了也没用, 所以暂时用不了. ~~等 js 的前端计算器搬到后端来先~~
+ymst自动配队器☆绝赞开发中
 
 ## 1. 账号数据提取
 
@@ -39,6 +37,10 @@ ymst自动配队器
 
 ---
 
+<details>
+
+<summary style="color: #38B0DE"> 自动更新脚本用不了? </summary>
+
 如果因为网络或者其他问题导致自动更新脚本不可用, 你也可以暂时通过以下任一方式进行游戏数据的部署. **注意会下载全部文件**. 但其他文件在其他模块中也可能~~一定~~用到, 顺手的事儿.
 
 - 直接访问及时更新的[Database地址](https://github.com/esterTion/yumesute_master_db_diff)进行下载.
@@ -71,9 +73,9 @@ foreach ($match in $matches) {
 
 该命令将会在终端的当前路径直接下载每个文件.
 
-## 3. 目前使用方法
+</details>
 
-已修改输入逻辑, 允许确定队长位置, 允许设置必选角色/海报, 允许固定必选角色/海报位置.
+## 3. 使用方法
 
 ### 3.0 注意事项
 
@@ -86,8 +88,7 @@ foreach ($match in $matches) {
 
 关于用户输入:
 
-- ~~目前的 CLI 估计需要一点技术门槛, 之后看看有没有群友适配个 GUI~~
-- 关于角色. 参数是先输入 `角色id`, 随后一个参数是其固定的轴(`1, .., 5`), 然后交替.
+- 关于角色. 参数是先输入 `角色id`, 随后一个参数是可选的角色固定轴(`1, .., 5`), 然后交替.
 - 关于海报, 参数是先输入 `海报id`, 随后一个参数是其捆绑的 `角色id`, 然后交替.
 - 详细配置见 3.1.
 
@@ -97,7 +98,8 @@ foreach ($match in $matches) {
 
 然后, 可以使用 `/scripts` 中的已提供简易脚本. 你可以:
 - 通过运行其中的 `update.sh` 更新游戏内数据文件至最新版本.
-- 随后运行其中的 `teamup.sh` 开始配队.
+- 随后运行其中的 `teamup.sh` 开始配队. (当然你也可以直接使用 `python Start.py < xxx.json` 作为输入)
+- 至于 server 模块, 由于无人维护, 因此暂时没有后续处理逻辑, 代码可能也有细节仍需打磨.
 - 推荐使用 git bash 终端. 否则你需要自己打开 `teamup.sh` 文件去手动修改 `USER_NAME` 等字段的值. ~~好像这样更方便~~
 
 在终端通过输入指定参数可以实现个性化配队. 
@@ -123,12 +125,23 @@ git bash your_path_to_root/scripts/teamup.sh [账号数据地址] [参数1] [值
 | `user` | `str`     | `Yumesute.json`      | 否   | 是你的用户数据 `xxx.json`. 把它放在配队器项目的根目录. <br> 使用时无需输入 `user`, 直接输入 `xxx.json` 即可. <br> **名称中间不允许空格 ~~`x xx.json`~~** |
 | `-mc`  | `int[10]` | `[0]*10`             | 否   | 结构类似 `[必选角色1, 其固定位置1, 必选角色2, ...]` <br> 无需求则补 `0`                                                              |
 | `-mp`  | `int[10]` | `[0]*10`             | 否   | 结构类似 `[必选海报1, 绑定的角色i, 必选海报2, ...]` <br> 无需求则补 `0`                                                              |
-| `-ml`  | `int`     | 0                    | 否   | 固定队长位置. 但是暂时不使用, 预估该参数将由计算器自己处理, 没必要发过来.                                                                       |
+| `-ml`  | `int`     | 0                    | 否   | 固定队长位置. **非 server 不使用**.                                                                                      |
 | `-d`   | `string`  | `/path/to/your/data` | 否   | 本地存储游戏内数据资源的路径                                                                                                 |
+
+`Start.py` 允许发送控制信息以暂停队伍基础状态的输出, 防止内存爆炸. 具体来说, 允许在配队器运行时, 随时输入对象:
+
+```json lines
+{"Control": "stop"}
+{"Control": "continue"}
+```
+
+以分别控制队伍基础状态的暂停与继续.
 
 ### 3.2 配队状态输出格式与请求体相关
 
-`Start.py` 的输出根据 [@演员](https://github.com/yanyuanSagiri) 的要求, 在终端提供 json 字符串的输出流:
+经由 `Start.py` 的输出根据 [@演员](https://github.com/yanyuanSagiri) 的要求, 在终端提供 json 字符串的输出流.
+
+为提高状态生成效率, 队伍基础状态为长度 `15` 的元组, 输出为 JSON 数组:
 
 ```json lines
 [150040, 150010, 150020, 150030, 140930, 230120, 230980, 330250, 330380, 230270, 331710, 430220, 331710, 331710, 330170]
@@ -138,7 +151,7 @@ git bash your_path_to_root/scripts/teamup.sh [账号数据地址] [参数1] [值
 `15` 个按顺序五五为角色, 海报和饰品的状态.
 
 
-`StartForServer.py` 的输出根据 [@Ohnkyta](https://github.com/OhnkytaBlabdey) 的 ymst-calc-server 要求, 提供:
+经由 `StartForServer.py` 的输出根据 [@Ohnkyta](https://github.com/OhnkytaBlabdey) 的 ymst-calc-server 要求, 提供:
 
 ```json
     {
@@ -154,9 +167,7 @@ git bash your_path_to_root/scripts/teamup.sh [账号数据地址] [参数1] [值
     }
 ```
 
-至默认的端口 `3456` 上. 需要注意的是, server 所需的是 `actors` 而非 `characters`, 但是 server 现在用不了, 对应代码在适配其他方案, 所以这部分使用时需修改.
-
-此外, 饰品处理结果传出的结果也非适配 server, 需要把里面部分代码注释, 并把部分注释代码启用.
+至默认的端口 `3456` 上.
 
 ### 3.3 结果筛选与统计
 

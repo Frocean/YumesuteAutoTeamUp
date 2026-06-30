@@ -34,7 +34,12 @@ $DATA_SET && CMD+=(-d "$DATA_DIR")
 $MC_SET && CMD+=(-mc "${MC_ARGS[@]}")
 $MP_SET && CMD+=(-mp "${MP_ARGS[@]}")
 
-echo "正在运行: ${CMD[*]}"
+echo "Running: ${CMD[*]}"
+
+trap '' INT
+
 "${CMD[@]}"
 
-read -r -p "按回车键退出..."
+trap - INT
+
+read -r -n 1 -p "按任意键退出..."

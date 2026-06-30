@@ -11,7 +11,7 @@ from src.FindAccessorySolutions import processor_accessory
 from src.args import parse_args
 
 
-async def stdin_reader(fin: asyncio.Event):
+async def stdin_reader(fin: asyncio.Event, stp: asyncio.Event):
     loop = asyncio.get_running_loop()
     while True:
         line = await loop.run_in_executor(None, sys.stdin.readline)
@@ -25,22 +25,39 @@ async def stdin_reader(fin: asyncio.Event):
             msg = json.loads(line)
         except json.JSONDecodeError:
             continue
+
+        ctrl = msg.get("Control")
+        if ctrl is not None:
+            if ctrl == "stop":
+                stp.clear()
+            elif ctrl == "continue":
+                stp.set()
+            continue
+
         if msg.get("FIN"):
             fin.set()
             break
+
         team_status = msg.get("team")
         team_score = msg.get("score")
         if team_status is not None and team_score is not None:
             pass  # TODO(Frocean): Push the result in the heap.
 
 
-async def stdout_writer(que: asyncio.Queue):
+async def stdout_writer(que: asyncio.Queue, stp: asyncio.Event):
     while True:
         team = await que.get()
         if team is None:
             print(json.dumps({"FIN": True}), flush=True)
             break
-        # print(json.dumps(team, ensure_ascii=False), flush=True)
+
+        await stp.wait()
+
+        # if team == (142150, 140530, 141550, 142360, 142160,
+        #             230570, 230120, 330330, 230980, 330380,
+        #             430220, 330170, 330180, 331670, 330190):
+        #     print(f"team {team} has been put")
+        print(json.dumps(team, ensure_ascii=False), flush=True)
 
 
 async def state_expander(
@@ -108,16 +125,19 @@ async def main():
         accessory_data = json.load(f)
     accessory_list = {item["CharacterBaseMasterId"]: item for item in accessory_data}
 
+    pause_event = asyncio.Event()
+    pause_event.set()
+
     async_queue = asyncio.Queue(maxsize=10)
     out_queue = asyncio.Queue(maxsize=1023)
 
     fin_event = asyncio.Event()
-    reader_task = asyncio.create_task(stdin_reader(fin_event))
-    writer_task = asyncio.create_task(stdout_writer(out_queue))
+    reader_task = asyncio.create_task(stdin_reader(fin_event, pause_event))
+    writer_task = asyncio.create_task(stdout_writer(out_queue, pause_event))
     expander_task = asyncio.create_task(state_expander(async_queue, out_queue, accessory_user, accessory_list))
 
     loop = asyncio.get_running_loop()
-    await loop.run_in_executor(  # ActorFormation.py
+    auto_task = loop.run_in_executor(  # ActorFormation.py
         None,
         automatic_formation,
         None, character_master_path, poster_ability_path, effect_master_path,
@@ -125,10 +145,31 @@ async def main():
         async_queue, loop, user_data
     )
 
-    await expander_task
-    await writer_task
-    await reader_task
-    print("Finished")
+    try:
+        await auto_task
+        await expander_task
+        await writer_task
+        await reader_task
+        print("Finished")
+    except KeyboardInterrupt:
+        print("task interrupt", flush=True)
+
+        for t in (reader_task, writer_task, expander_task):
+            t.cancel()
+
+        try:
+            out_queue.put_nowait(None)
+        except asyncio.QueueFull:
+            pass
+
+        fin_event.set()
+
+        await asyncio.gather(
+            reader_task, writer_task, expander_task,
+            return_exceptions=True
+        )
+
+        print("cleanup done", flush=True)
 
 
 if __name__ == "__main__":

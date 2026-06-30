@@ -16,8 +16,8 @@ def processor_accessory(base_state, busy_chara, accessory_user, accessory_list):
     注意事项: 如果出现了类似蝴蝶结的通用上位饰品, 请及时通过 qq 联系本人, 也可以或自行在 accessory_processed.json 中添加对应饰品 ID.
     """
     # ---------- status for check ----------
-    # if base_state and base_state[0][:5] == (150010, 150040, 150020, 150030, 142290):
-    #     print("Characters' status: base_state with characters (150010, 150040, 150020, 150030, 142290)")
+    # if base_state and base_state[0][:5] == (142150, 140530, 141550, 142360, 142160):
+    #     print("Characters' status: base_state with characters (142150, 140530, 141550, 142360, 142160)")
     #     for base in base_state:
     #         print(base)
     # else:

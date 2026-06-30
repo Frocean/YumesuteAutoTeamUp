@@ -63,6 +63,9 @@ if [ -n "$USER_DATA_PATH" ]; then
 fi
 echo "正在运行: $CMD_STR"
 
+# ignore Ctrl+C
+trap '' INT
+
 if [ -n "$USER_DATA_PATH" ]; then
     if [ ! -f "$USER_DATA_PATH" ]; then
         echo "用户数据文件 '$USER_DATA_PATH' 不存在"
@@ -73,4 +76,6 @@ else
     python Start.py "${ARGS[@]}"
 fi
 
-read -r -p "按回车键退出..."
+trap - INT
+
+read -r -n 1 -p "按任意键退出..."
