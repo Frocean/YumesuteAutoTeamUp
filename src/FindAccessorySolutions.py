@@ -30,10 +30,16 @@ def processor_accessory(base_state, busy_chara, accessory_user, accessory_list):
 
     _default = 331670  # 48%
     # _default = 331710  # Time-sensitive parameter. Analysis if birthday/ct accessory doesn't increase score.
+
+    ct_list = {331540, 332540, 331680, 332680, 331690, 332690, 331700, 332700}  # -5ct
     ct_default = 331540
+
     a_default = {_default}
-    if ct_default in a_user:
-        a_default.add(ct_default)
+    for accessory in ct_list:
+        if accessory in a_user:
+            a_default.add(ct_default)
+            break
+
     a_list = [a_default.copy() for _ in range(5)]
     # print(a_list)
 
