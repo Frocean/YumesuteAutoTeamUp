@@ -40,7 +40,8 @@ ymst自动配队器☆现已加入 [@演员](https://github.com/yanyuanSagiri) �
 - [3.0 注意事项](#30-注意事项)
 - [3.1 开始使用](#31-开始使用)
 - [3.2 配队状态输出格式与请求体相关](#32-配队状态输出格式与请求体相关)
-- [3.3 结果筛选与统计](#33-结果筛选与统计)
+- [3.3 控制信息输入与输出格式](#33-控制信息输入与输出格式)
+- [3.4 结果筛选与统计](#34-结果筛选与统计)
 
 
 
@@ -177,13 +178,6 @@ git bash your_path_to_root/scripts/teamup.sh [账号数据地址] [参数1] [值
 | `-ml`  | `int`     | 0               | 否   | 固定队长位置. **非 server 不使用**.                                                                                      |
 | `-d`   | `string`  | `data`          | 否   | 本地存储游戏内数据资源的路径, 可按需修改成 `/path/to/your/data`                                                                    |
 
-`Start.py` 允许发送控制信息以暂停队伍基础状态的输出, 防止内存爆炸. 具体来说, 允许在配队器运行时, 随时输入对象:
-
-```json lines
-{"Control": "stop"}
-{"Control": "continue"}
-```
-
 以分别控制队伍基础状态的暂停与继续.
 
 ### 3.2 配队状态输出格式与请求体相关
@@ -220,7 +214,37 @@ git bash your_path_to_root/scripts/teamup.sh [账号数据地址] [参数1] [值
 
 至默认的端口 `3456` 上.
 
-### 3.3 结果筛选与统计
+
+
+### 3.3 控制信息输入与输出格式
+
+配队器会默认提供当前运行的状态: 当前 box 的角色排列数量之和, 以及当前处理到了第几个状态, 方便设置进度条.
+
+具体来说, 你可能会接收到下面两个字段:
+
+```json lines
+{"type": "character_total", "num": len(total_characters_status)}
+{"type": "character_now", "num": count_for_processed_characters_status}
+```
+
+后面的数量均为整型.
+
+`ActorFormation.py` 的大约 `286` 行还注释了当前角色状态需要的海报数量, 若有需要可以取消注释拿来用.
+
+```json lines
+{"type": "poster_total", "num": len(one_batch_posters_status)}
+```
+
+至于其处理状态和更进一步的饰品处理状态, 由于数量很多, 影响效率, 因此不提供输出.
+
+此外, `Start.py` 允许发送控制信息以暂停队伍基础状态的输出, 防止内存爆炸. 具体来说, 允许在配队器运行时, 随时输入对象:
+
+```json lines
+{"Control": "stop"}
+{"Control": "continue"}
+```
+
+### 3.4 结果筛选与统计
 
 这部分暂时用不到, 而且可能以后也用不到, 暂时鸽置. 当然, 由于代码中为这部分保留了可能需要的 `stdin` 监听, 因此需要切断输入流或者传入不为空的 `{"FIN": xxx}` 作为结束的控制信息, 才会正常结束进程.
 

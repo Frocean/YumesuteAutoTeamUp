@@ -209,6 +209,7 @@ class CheckUnrepeated:
                         queue_next.append(state_bot)
             queue = queue_next
         print(f"cost time {time.time() - stime}s in {len(queue)} solutions")
+        print(json.dumps({"type": "character_total", "num": len(queue)}), flush=True)
         return queue
 
     def processor_poster(self, clist, solutions):
@@ -282,6 +283,7 @@ class CheckUnrepeated:
             res_bot[5:10] = list(q)
             self._result_poste.append(tuple(res_bot))
         print(f"cost time {time.time() - stime}s in {len(queue)} solutions")
+        # print(json.dumps({"type": "poster_total", "total": len(queue)}), flush=True)
         return self._result_poste
 
 
@@ -332,8 +334,7 @@ def automatic_formation(
                                              userdata)
     print(f"check characters...")
     result_c = checker.processor_character(c_cache)
-    # put_count = 0
-    for r in result_c:
+    for i, r in enumerate(result_c):
         print(f"check posters...")
         # print(r)
         checker.urp_filter_p(r, mandatory_posters)
@@ -347,8 +348,9 @@ def automatic_formation(
                 pipeline_queue.put({"Result": result, "CharacterBaseMasterId": charb_id}),
                 loop
             )
+        print(json.dumps({"type": "character_now", "num": i+1}), flush=True)
         #     put_count += 1
-        #     if put_count % 100 == 0:
+        #     if (i+1) % 100 == 0:
         #         print(f"put {put_count} items into queue, queue size {pipeline_queue.qsize()}")
     if pipeline_queue is not None:
         asyncio.run_coroutine_threadsafe(pipeline_queue.put(None), loop)
