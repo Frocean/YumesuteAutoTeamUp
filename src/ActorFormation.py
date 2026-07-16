@@ -283,7 +283,6 @@ class CheckUnrepeated:
             res_bot[5:10] = list(q)
             self._result_poste.append(tuple(res_bot))
         print(f"cost time {time.time() - stime}s in {len(queue)} solutions")
-        # print(json.dumps({"type": "poster_total", "total": len(queue)}), flush=True)
         return self._result_poste
 
 
@@ -348,7 +347,6 @@ def automatic_formation(
                 pipeline_queue.put({"Result": result, "CharacterBaseMasterId": charb_id}),
                 loop
             )
-        print(json.dumps({"type": "character_now", "num": i+1}), flush=True)
         #     put_count += 1
         #     if (i+1) % 100 == 0:
         #         print(f"put {put_count} items into queue, queue size {pipeline_queue.qsize()}")

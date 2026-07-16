@@ -8,9 +8,11 @@ import sys
 
 from src.ActorFormation import automatic_formation
 from src.FindAccessorySolutions import processor_accessory
+# from src.TeamFrontier import FrontierHeap
 from src.args import parse_args
 
 
+# async def stdin_reader(fin: asyncio.Event, stp: asyncio.Event, topk: FrontierHeap):
 async def stdin_reader(fin: asyncio.Event, stp: asyncio.Event):
     loop = asyncio.get_running_loop()
     while True:
@@ -35,13 +37,17 @@ async def stdin_reader(fin: asyncio.Event, stp: asyncio.Event):
             continue
 
         if msg.get("FIN"):
+            # final_results = topk.get_top_k()
+            # result_json = [{"team": team, "score": score} for team, score in final_results]
+            # print(json.dumps(result_json, ensure_ascii=False), flush=True)
             fin.set()
             break
 
         team_status = msg.get("team")
         team_score = msg.get("score")
         if team_status is not None and team_score is not None:
-            pass  # TODO(Frocean): Push the result in the heap.
+            pass
+            # topk.add(team_status, team_score)  # TODO(Frocean): Push the result in the heap.
 
 
 async def stdout_writer(que: asyncio.Queue, stp: asyncio.Event):
@@ -64,7 +70,8 @@ async def state_expander(
         async_queue: asyncio.Queue,
         out_queue: asyncio.Queue,
         accessory_user: list,
-        accessory_list: dict
+        accessory_list: dict,
+        chara_count: int
 ):
     loop = asyncio.get_running_loop()
     while True:  # get actor formations
@@ -83,6 +90,9 @@ async def state_expander(
 
         for team in expanded_teams:
             await out_queue.put(team)
+
+        chara_count += 1
+        print(json.dumps({"type": "character_now", "num": chara_count+1}), flush=True)
         async_queue.task_done()
     await out_queue.put(None)
 
@@ -125,6 +135,9 @@ async def main():
         accessory_data = json.load(f)
     accessory_list = {item["CharacterBaseMasterId"]: item for item in accessory_data}
 
+    # frontier_teams = FrontierHeap(k=1000, t=15)
+    c_now = 0
+
     pause_event = asyncio.Event()
     pause_event.set()
 
@@ -132,9 +145,10 @@ async def main():
     out_queue = asyncio.Queue(maxsize=1023)
 
     fin_event = asyncio.Event()
+    # reader_task = asyncio.create_task(stdin_reader(fin_event, pause_event, frontier_teams))
     reader_task = asyncio.create_task(stdin_reader(fin_event, pause_event))
     writer_task = asyncio.create_task(stdout_writer(out_queue, pause_event))
-    expander_task = asyncio.create_task(state_expander(async_queue, out_queue, accessory_user, accessory_list))
+    expander_task = asyncio.create_task(state_expander(async_queue, out_queue, accessory_user, accessory_list, c_now))
 
     loop = asyncio.get_running_loop()
     auto_task = loop.run_in_executor(  # ActorFormation.py

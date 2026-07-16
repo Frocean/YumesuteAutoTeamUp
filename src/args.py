@@ -6,10 +6,10 @@ def parse_args():
     parser.add_argument('user', nargs='?', metavar='File name for user data', default='Yumetest.json', help='账号数据名称')
     parser.add_argument('-d', '--data', metavar='DIR for game data', default='data', help='游戏内资源路径')
     # parser.add_argument('-mc', '--mandatory_characters', type=int, nargs=10,
-    #                     default=[140530, 0, 142160, 0, 142360, 0, 142150, 0, 0, 0],
+    #                     default=[142480, 0, 142470, 0, 142290, 0, 150010, 0, 0, 0],
     #                     help='交替输入必选角色及其固定位置, 不选则填0, 以空格分割')
     # parser.add_argument('-mp', '--mandatory_posters', type=int, nargs=10,
-    #                     default=[230120, 140530, 230980, 142360, 0, 0, 0, 0, 0, 0],
+    #                     default=[230120, 150010, 330380, 142480, 0, 0, 0, 0, 0, 0],
     #                     help='交替输入必选海报及其绑定角色, 不选则填0, 以空格分割')
     parser.add_argument('-mc', '--mandatory_characters', type=int, nargs=10, default=[0]*10,
                         help='交替输入必选角色及其固定位置, 不选则填0, 以空格分割')
