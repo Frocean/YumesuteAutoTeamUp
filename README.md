@@ -1,3 +1,18 @@
+<p align="center">
+  <span style="font-size: 2em; font-weight: bold; letter-spacing: 0.15em;">Riposi in pace</span><br>
+  <em style="color: #888; font-size: 1.1em;">2023.07.26 – 2026.09.29</em>
+</p>
+
+---
+
+> 🕊️ Yumesute has reached the end of its journey.  
+> No further maintenance, updates, or support will be provided.  
+> Thank you to everyone who played, discussed, or topped up the game along the way.  
+>  
+> *May the Yumesute rest quietly.*
+
+---
+
 # YumesuteAutoTeamUp
 
 Auto team-up script for Yumesute
