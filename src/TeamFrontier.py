@@ -3,6 +3,9 @@ FindAccessorySolution module is used to store initial results from calculator.
 Every team will save t-top scores in heap which sizes k.
 Input: {"team": array[15], "score": int}, An array[15] indicates Characters[5], Posters[5] and Accessories[5].
 Output: Top-k results. Tuple(array[15]) per line.
+
+The algorithm was not finished before the server shutdown, and it's dispensable to dedicate more time in it.
+**Therefore, partial code was completed by AI.**
 """
 import heapq
 from collections import defaultdict

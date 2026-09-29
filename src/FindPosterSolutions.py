@@ -166,6 +166,9 @@ class PosterFilter:
     """
     filter_triggers method is used to check Trigger with options:
         "Attribute", "CharacterBase", "CharacterBaseGroup(3/4/5)", "Company"
+    Other triggers are not supported, for instance,
+        "MaxMemberBelongingAttributeCount", "AllMemberBelongingCompany"
+    Due to these triggers only have impact on "PerformanceUp", or they're appended at the time near the game closure.
     """
     def filter_triggers(self, data, character):
         # print(character)

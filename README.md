@@ -1,5 +1,5 @@
 <p align="center">
-  <span style="font-size: 2em; font-weight: bold; letter-spacing: 0.15em;">Riposi in pace</span><br>
+  <span style="font-size: 2em; font-weight: bold; letter-spacing: 0.15em;">Rest in peace</span><br>
   <em style="color: #888; font-size: 1.1em;">2023.07.26 – 2026.09.29</em>
 </p>
 
@@ -21,7 +21,7 @@ ymst自动配队器☆现已加入 [@演员](https://github.com/yanyuanSagiri) �
 
 由于本项目仅为 plug-and-play 的优质配队生成器, 并非完整的计算器实现; 因此不在该项目内提供 Release 作为解决方案.
 
-若需要使用计算器, 你可以前往[扩展计算器](https://github.com/yanyuanSagiri/ymst_est_calc_expand)项目, 或者进入观星部聊天群直接获取最新版打包计算器.
+若需要使用计算器, 你可以前往[扩展计算器](https://github.com/yanyuanSagiri/ymst_est_calc_expand/tree/python-script)项目, 或者进入观星部聊天群直接获取最新版打包计算器.
 
 ![界面](./images/Calculator.png)
 ![使用效果](./images/Result.png)
